@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Data{% endblock %}
+
+{% block content %}
+
+    <div class="my-4 mx-auto w-75">
+        <form action="{{ url_for('data.view_data') }}" method="get">
+            <div class="row g-3">
+                {% for name, values in select_filters.items() %}
+                    <div class="col-md">
+                        <div class="form-floating">
+                            <select class="form-select" id="{{ name }}" name="{{ name }}">
+                                <option value="">all</option>
+                                {% for value in values %}
+                                    <option value="{{ value }}" {% if name in selected and selected[name] == value %}selected{% endif %}>{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="{{ name }}">{{ name }}</label>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="date" class="form-control" id="birth_date" name="birth_date" {% if "birth_date" in selected%}value="{{ selected['birth_date'] }}"{% endif %}>
+                        <label for="birth_date">birth_date</label>
+                    </div>
+                </div>
+            </div>
+            <input type="submit" class="btn btn-primary my-3" value="Filter">
+            <a href="{{ url_for('data.save_data', **selected) }}" class="btn btn-secondary">Download</a>
+        </form>
+    </div>
+    <div class="my-4 mx-auto w-75">
+        <table class="table table-striped">
+            <tr>
+                <th scope="col">Category</th>
+                <th scope="col">First name</th>
+                <th scope="col">Last name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Birth date</th>
+            </tr>
+            {% for row in data %}
+            <tr>
+                <td>{{ row.category }}</td>
+                <td>{{ row.first_name }}</td>
+                <td>{{ row.last_name }}</td>
+                <td>{{ row.email }}</td>
+                <td>{{ row.gender }}</td>
+                <td>{{ row.birth_date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="my-4 mx-auto w-75">
+        {{ pagination.links }}
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+    {{ super() }}
+
+    <script>
+    window.addEventListener('load', function() {
+      let forms = document.getElementsByTagName('form');
+      for (let form of forms) {
+        form.addEventListener('formdata', function(event) {
+          let formData = event.formData;
+          for (let [name, value] of Array.from(formData.entries())) {
+            if (value === '') formData.delete(name);
+          }
+        });
+      }
+    });
+    </script>
+{% endblock javascript %}
